@@ -1,148 +1,277 @@
+
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk, messagebox
 import re
 
 
-class FormularioRegistro:
-    def __init__(self):
-        self.root = tk.Tk()
-        self.root.title("Registro de Usuario - Semana 13")
-        self.root.geometry("540x590")
-        self.root.resizable(False, False)
-        self.root.configure(bg="#f4f6f8")
+class Formulario:
+    def __init__(self, ventana):
+        self.ventana = ventana
+        self.ventana.title("Formulario de Registro - Semana 13")
+        self.ventana.geometry("520x680")
+        self.ventana.resizable(False, False)
+        self.ventana.configure(bg="#eef2f7")
 
-        self.nombre = tk.StringVar()
-        self.email = tk.StringVar()
-        self.password = tk.StringVar()
-        self.confirm_pass = tk.StringVar()
-        self.edad = tk.StringVar()
-        self.genero = tk.StringVar(value="")
-        self.acepto = tk.BooleanVar(value=False)
+        self.crear_interfaz()
 
-        self.crear_widgets()
+    def crear_interfaz(self):
+        titulo = tk.Label(
+            self.ventana,
+            text="REGISTRO DE USUARIO",
+            font=("Arial", 19, "bold"),
+            bg="#eef2f7",
+            fg="#17365d"
+        )
+        titulo.pack(pady=15)
 
-    def crear_widgets(self):
-        frame = tk.Frame(self.root, padx=25, pady=20, bg="#f4f6f8")
-        frame.pack(fill="both", expand=True)
+        subtitulo = tk.Label(
+            self.ventana,
+            text="Complete todos los campos del formulario",
+            font=("Arial", 10),
+            bg="#eef2f7",
+            fg="#555555"
+        )
+        subtitulo.pack(pady=2)
 
-        tk.Label(
-            frame, text="Registro de Usuario",
-            font=("Arial", 19, "bold"), bg="#f4f6f8", fg="#203040"
-        ).grid(row=0, column=0, columnspan=2, pady=(0, 20))
+        panel = tk.Frame(
+            self.ventana,
+            bg="white",
+            padx=30,
+            pady=15
+        )
+        panel.pack(padx=25, pady=15, fill="both", expand=True)
 
-        campos = [
-            ("Nombre completo:", self.nombre, False),
-            ("Email:", self.email, False),
-            ("Contraseña:", self.password, True),
-            ("Confirmar contraseña:", self.confirm_pass, True),
-            ("Edad:", self.edad, False),
-        ]
+        # Nombre
+        self.crear_etiqueta(panel, "Nombre completo:")
+        self.nombre = ttk.Entry(panel, font=("Arial", 11))
+        self.nombre.pack(fill="x", pady=4)
 
-        self.entradas = []
-        for i, (etiqueta, variable, oculto) in enumerate(campos, start=1):
-            tk.Label(
-                frame, text=etiqueta, font=("Arial", 11),
-                bg="#f4f6f8"
-            ).grid(row=i, column=0, sticky="e", pady=8, padx=(0, 12))
+        # Correo electrónico
+        self.crear_etiqueta(panel, "Correo electrónico:")
+        self.email = ttk.Entry(panel, font=("Arial", 11))
+        self.email.pack(fill="x", pady=4)
 
-            entrada = tk.Entry(
-                frame, textvariable=variable, width=32,
-                font=("Arial", 11), show="*" if oculto else ""
-            )
-            entrada.grid(row=i, column=1, sticky="w", pady=8, ipady=4)
-            self.entradas.append(entrada)
+        # Contraseña
+        self.crear_etiqueta(panel, "Contraseña:")
+        self.password = ttk.Entry(
+            panel,
+            font=("Arial", 11),
+            show="*"
+        )
+        self.password.pack(fill="x", pady=4)
 
-        tk.Label(
-            frame, text="Género:", font=("Arial", 11), bg="#f4f6f8"
-        ).grid(row=6, column=0, sticky="e", pady=8, padx=(0, 12))
+        # Confirmación
+        self.crear_etiqueta(panel, "Confirmar contraseña:")
+        self.confirmar = ttk.Entry(
+            panel,
+            font=("Arial", 11),
+            show="*"
+        )
+        self.confirmar.pack(fill="x", pady=4)
 
-        genero_frame = tk.Frame(frame, bg="#f4f6f8")
-        genero_frame.grid(row=6, column=1, sticky="w")
-        for opcion in ("Masculino", "Femenino", "Otro"):
-            tk.Radiobutton(
-                genero_frame, text=opcion, variable=self.genero,
-                value=opcion, bg="#f4f6f8"
-            ).pack(side="left", padx=3)
+        # Edad
+        self.crear_etiqueta(panel, "Edad:")
+        self.edad = ttk.Entry(panel, font=("Arial", 11))
+        self.edad.pack(fill="x", pady=4)
+
+        # Género
+        self.crear_etiqueta(panel, "Género:")
+        self.genero = ttk.Combobox(
+            panel,
+            values=["Masculino", "Femenino", "Otro"],
+            state="readonly",
+            font=("Arial", 11)
+        )
+        self.genero.set("Seleccionar género")
+        self.genero.pack(fill="x", pady=4)
+
+        # Términos y condiciones
+        self.acepta = tk.BooleanVar(value=False)
 
         tk.Checkbutton(
-            frame, text="Acepto los términos y condiciones",
-            variable=self.acepto, bg="#f4f6f8",
-            font=("Arial", 10)
-        ).grid(row=7, column=0, columnspan=2, pady=18)
+            panel,
+            text="Acepto los términos y condiciones",
+            variable=self.acepta,
+            bg="white",
+            font=("Arial", 10),
+            activebackground="white"
+        ).pack(anchor="w", pady=12)
 
-        botones = tk.Frame(frame, bg="#f4f6f8")
-        botones.grid(row=8, column=0, columnspan=2, pady=12)
-
-        tk.Button(
-            botones, text="Registrar", command=self.validar,
-            width=15, bg="#2e8b57", fg="white",
-            font=("Arial", 10, "bold")
-        ).pack(side="left", padx=8, ipady=5)
+        # Botones
+        botones = tk.Frame(panel, bg="white")
+        botones.pack(pady=12)
 
         tk.Button(
-            botones, text="Limpiar", command=self.limpiar,
-            width=15, font=("Arial", 10)
-        ).pack(side="left", padx=8, ipady=5)
+            botones,
+            text="REGISTRAR",
+            command=self.registrar,
+            bg="#1769aa",
+            fg="white",
+            font=("Arial", 10, "bold"),
+            width=15,
+            cursor="hand2"
+        ).pack(side="left", padx=6)
 
+        tk.Button(
+            botones,
+            text="LIMPIAR",
+            command=self.limpiar,
+            bg="#d9534f",
+            fg="white",
+            font=("Arial", 10, "bold"),
+            width=15,
+            cursor="hand2"
+        ).pack(side="left", padx=6)
+
+        self.nombre.focus()
+
+    def crear_etiqueta(self, panel, texto):
         tk.Label(
-            frame, text="Completa todos los campos para registrar tus datos.",
-            font=("Arial", 9), fg="#555555", bg="#f4f6f8"
-        ).grid(row=9, column=0, columnspan=2, pady=10)
+            panel,
+            text=texto,
+            font=("Arial", 10, "bold"),
+            bg="white",
+            fg="#333333"
+        ).pack(anchor="w", pady=(6, 0))
 
-        # Atajo de teclado: Ctrl+Enter intenta registrar.
-        self.root.bind("<Control-Return>", lambda evento: self.validar())
-
-    def validar(self):
-        errores = []
-
-        if not self.nombre.get().strip():
-            errores.append("El nombre es obligatorio")
-
+    def validar_datos(self):
+        nombre = self.nombre.get().strip()
         email = self.email.get().strip()
-        if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
-            errores.append("Email inválido (debe contener @ y dominio)")
+        password = self.password.get()
+        confirmar = self.confirmar.get()
+        edad = self.edad.get().strip()
+        genero = self.genero.get()
 
-        if len(self.password.get()) < 8:
-            errores.append("La contraseña debe tener mínimo 8 caracteres")
+        if not nombre:
+            messagebox.showwarning(
+                "Validación",
+                "Ingresa tu nombre completo."
+            )
+            self.nombre.focus()
+            return False
 
-        if self.password.get() != self.confirm_pass.get():
-            errores.append("Las contraseñas no coinciden")
+        if not re.fullmatch(r"[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s'-]+", nombre):
+            messagebox.showwarning(
+                "Validación",
+                "El nombre contiene caracteres no permitidos."
+            )
+            self.nombre.focus()
+            return False
+
+        patron_email = r"^[\w.+-]+@[\w-]+(?:\.[\w-]+)+$"
+
+        if not re.fullmatch(patron_email, email):
+            messagebox.showwarning(
+                "Validación",
+                "Ingresa un correo electrónico válido."
+            )
+            self.email.focus()
+            return False
+
+        if len(password) < 8:
+            messagebox.showwarning(
+                "Validación",
+                "La contraseña debe tener al menos 8 caracteres."
+            )
+            self.password.focus()
+            return False
+
+        if not re.search(r"[A-Z]", password):
+            messagebox.showwarning(
+                "Validación",
+                "La contraseña debe contener una letra mayúscula."
+            )
+            self.password.focus()
+            return False
+
+        if not re.search(r"[a-z]", password):
+            messagebox.showwarning(
+                "Validación",
+                "La contraseña debe contener una letra minúscula."
+            )
+            self.password.focus()
+            return False
+
+        if not re.search(r"\d", password):
+            messagebox.showwarning(
+                "Validación",
+                "La contraseña debe contener un número."
+            )
+            self.password.focus()
+            return False
+
+        if password != confirmar:
+            messagebox.showwarning(
+                "Validación",
+                "Las contraseñas no coinciden."
+            )
+            self.confirmar.focus()
+            return False
 
         try:
-            edad = int(self.edad.get())
-            if edad < 15 or edad > 99:
-                errores.append("La edad debe estar entre 15 y 99")
+            edad_numero = int(edad)
+
+            if edad_numero < 15:
+                messagebox.showwarning(
+                    "Validación",
+                    "La edad mínima permitida es 15 años."
+                )
+                self.edad.focus()
+                return False
+
+            if edad_numero > 120:
+                messagebox.showwarning(
+                    "Validación",
+                    "Ingresa una edad válida."
+                )
+                self.edad.focus()
+                return False
+
         except ValueError:
-            errores.append("La edad debe ser un número")
-
-        if not self.genero.get():
-            errores.append("Seleccione un género")
-
-        if not self.acepto.get():
-            errores.append("Debe aceptar los términos")
-
-        if errores:
-            messagebox.showerror(
-                "Errores de validación",
-                "\n".join(f"• {error}" for error in errores)
+            messagebox.showwarning(
+                "Validación",
+                "La edad debe ser un número entero."
             )
-        else:
+            self.edad.focus()
+            return False
+
+        if genero not in ["Masculino", "Femenino", "Otro"]:
+            messagebox.showwarning(
+                "Validación",
+                "Selecciona un género."
+            )
+            self.genero.focus()
+            return False
+
+        if not self.acepta.get():
+            messagebox.showwarning(
+                "Validación",
+                "Debes aceptar los términos y condiciones."
+            )
+            return False
+
+        return True
+
+    def registrar(self):
+        if self.validar_datos():
             messagebox.showinfo(
                 "Registro exitoso",
-                f"¡Bienvenido {self.nombre.get().strip()}!\n"
-                f"Email: {self.email.get().strip()}"
+                "¡El usuario se registró correctamente!"
             )
+            self.limpiar()
 
     def limpiar(self):
-        for variable in (
-            self.nombre, self.email, self.password,
-            self.confirm_pass, self.edad, self.genero
-        ):
-            variable.set("")
-        self.acepto.set(False)
-        self.entradas[0].focus_set()
+        self.nombre.delete(0, tk.END)
+        self.email.delete(0, tk.END)
+        self.password.delete(0, tk.END)
+        self.confirmar.delete(0, tk.END)
+        self.edad.delete(0, tk.END)
+        self.genero.set("Seleccionar género")
+        self.acepta.set(False)
+        self.nombre.focus()
 
 
 if __name__ == "__main__":
-    app = FormularioRegistro()
-    app.root.mainloop()
+    ventana = tk.Tk()
+    aplicacion = Formulario(ventana)
+    ventana.mainloop()
