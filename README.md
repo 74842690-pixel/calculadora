@@ -1,1 +1,3 @@
 # calculadora
+
+ALUMNO:  KATSUMI ALBERT MAMANI CORRALES
